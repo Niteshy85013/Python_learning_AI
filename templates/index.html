@@ -1,14 +1,56 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Available Exercises</h2>
-<ul class="exercise-list">
-  {% for ex in exercises %}
-    <li>
-      <strong>{{ ex.title }}</strong> — {{ ex.difficulty }} <br/>
-      <a href="{{ url_for('exercise_view', ex_id=ex.id) }}">Open Exercise</a>
-    </li>
-  {% else %}
-    <li>No exercises yet.</li>
-  {% endfor %}
-</ul>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold ">Python Available Exercises</h2>
+</div>
+
+{% if exercises %}
+<div class="row g-3">
+
+    {% for ex in exercises %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm h-100 border-0 exercise-card">
+            <div class="card-body">
+                <h5 class="card-title fw-semibold">{{ ex.title }}</h5>
+
+                <p class="text-muted mb-2">
+                    Difficulty: 
+                    <span class="badge 
+                        {% if ex.difficulty == 'Easy' %} bg-success 
+                        {% elif ex.difficulty == 'Medium' %} bg-warning text-dark
+                        {% else %} bg-danger
+                        {% endif %}
+                    ">
+                        {{ ex.difficulty }}
+                    </span>
+                </p>
+
+                <a href="{{ url_for('exercise_view', ex_id=ex.id) }}" class="btn btn-primary w-100 mt-2">
+                    Open Exercise
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+{% else %}
+<div class="alert alert-info mt-3 text-center">
+    No exercises available at the moment.
+</div>
+{% endif %}
+
+<style>
+    .exercise-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-radius: 12px;
+    }
+    .exercise-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
 {% endblock %}

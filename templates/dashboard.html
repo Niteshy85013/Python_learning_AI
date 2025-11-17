@@ -1,23 +1,72 @@
 {% extends "base.html" %}
+
 {% block content %}
-<h2>Dashboard</h2>
-<p>Welcome, {{ current_user.username }}!</p>
+<div class="container py-4">
 
-<h3>Exercises</h3>
-<ul>
-  {% for ex in exercises %}
-    <li>
-      <strong>{{ ex.title }}</strong> — <a href="{{ url_for('exercise_view', ex_id=ex.id) }}">Attempt</a>
-    </li>
-  {% endfor %}
-</ul>
+    <!-- Welcome Card -->
+    <div class="card shadow p-4 mb-4" style="border-radius: 16px;">
+        <h2 class="fw-bold mb-1">🏠 Dashboard</h2>
+        <p class="text-muted mb-0">Welcome, <strong>{{ current_user.username }}</strong>!</p>
+    </div>
 
-<h3>Recent Submissions</h3>
-<ul>
-  {% for s in submissions %}
-    <li>{{ s.exercise.title }} — Passed: {{ s.passed }} — {{ s.created_at.strftime("%Y-%m-%d %H:%M") }}</li>
-  {% else %}
-    <li>No recent submissions.</li>
-  {% endfor %}
-</ul>
+    <div class="row g-4">
+
+        <!-- Exercises Section -->
+        <div class="col-12 col-lg-6">
+            <div class="card shadow p-4 h-100" style="border-radius: 16px;">
+                <h4 class="fw-bold mb-3">📘 Exercises</h4>
+
+                {% if exercises %}
+                    <ul class="list-group">
+                        {% for ex in exercises %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center mb-2 shadow-sm"
+                                style="border-radius: 12px;">
+                                <div>
+                                    <strong>{{ ex.title }}</strong>
+                                </div>
+                                <a href="{{ url_for('exercise_view', ex_id=ex.id) }}"
+                                   class="btn btn-sm btn-primary fw-semibold">Attempt</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="alert alert-info">No exercises available.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Submissions Section -->
+        <div class="col-12 col-lg-6">
+            <div class="card shadow p-4 h-100" style="border-radius: 16px;">
+                <h4 class="fw-bold mb-3">📝 Recent Submissions</h4>
+
+                {% if submissions %}
+                    <ul class="list-group">
+                        {% for s in submissions %}
+                            <li class="list-group-item mb-2 shadow-sm" style="border-radius: 12px;">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <strong>{{ s.exercise.title }}</strong><br>
+                                        <small class="text-muted">{{ s.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
+                                    </div>
+                                    <div>
+                                        {% if s.passed %}
+                                            <span class="badge bg-success">Passed</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Failed</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="alert alert-info mt-3">No recent submissions.</div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+</div>
 {% endblock %}
