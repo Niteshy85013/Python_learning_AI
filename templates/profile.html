@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Profile Header -->
+    <div class="card shadow p-4 mb-4" style="border-radius: 16px;">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between">
+            <div>
+                <h2 class="fw-bold mb-1">👤 Profile: {{ user.username }}</h2>
+                <p class="text-muted mb-0">
+                    Member since: <strong>{{ user.created_at.strftime("%Y-%m-%d") }}</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submissions Section -->
+    <div class="card shadow p-4" style="border-radius: 16px;">
+        <h4 class="fw-bold mb-3">📄 All Submissions</h4>
+
+        {% if submissions %}
+            <div class="list-group">
+
+                {% for s in submissions %}
+                    <div class="list-group-item mb-3 shadow-sm" style="border-radius: 14px;">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="mb-1 fw-semibold">{{ s.exercise.title }}</h5>
+
+                                <p class="mb-1">
+                                    <strong>Status:</strong>
+                                    {% if s.passed %}
+                                        <span class="badge bg-success">Passed</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Failed</span>
+                                    {% endif %}
+                                </p>
+
+                                <p class="text-muted small mb-2">
+                                    Submitted on: {{ s.created_at.strftime("%Y-%m-%d %H:%M") }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="mt-2">
+                            <label class="fw-semibold">Result Output:</label>
+                            <pre class="p-3 bg-light border rounded" style="white-space: pre-wrap;">{{ s.result }}</pre>
+                        </div>
+                    </div>
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+            <div class="alert alert-info mt-3">
+                No submissions yet.
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Available Exercises</h2>
+<ul class="exercise-list">
+  {% for ex in exercises %}
+    <li>
+      <strong>{{ ex.title }}</strong> — {{ ex.difficulty }} <br/>
+      <a href="{{ url_for('exercise_view', ex_id=ex.id) }}">Open Exercise</a>
+    </li>
+  {% else %}
+    <li>No exercises yet.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
