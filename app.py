@@ -145,7 +145,7 @@ def exercise_view(ex_id):
         .order_by(Submission.created_at.desc()).limit(5).all()
     
     db.close()
-    return render_template('exercise.html', exercise=exercise, form=form, submissions=subs)  # Fixed typo
+    return render_template('excercise.html', exercise=exercise, form=form, submissions=subs)  # Fixed typo
 
 @app.route('/profile')
 @login_required
