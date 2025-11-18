@@ -1,27 +1,116 @@
+
 {% extends "base.html" %}
 {% block content %}
-<h2>{{ exercise.title }}</h2>
-<p>{{ exercise.description }}</p>
-<p><strong>Difficulty:</strong> {{ exercise.difficulty }}</p>
 
-<form method="POST">
-  {{ form.hidden_tag() }}
-  <p>
-    {{ form.code(cols=80, rows=12) }}
-  </p>
-  <p>{{ form.submit() }}</p>
-</form>
+<div class="exercise-header mb-4">
+    <h2 class="fw-bold">{{ exercise.title }}</h2>
+    <p class="text-muted">{{ exercise.description }}</p>
 
-<h3>Your recent submissions for this exercise</h3>
-<ul>
-  {% for s in submissions %}
-    <li>
-      <strong>{{ 'Passed' if s.passed else 'Failed' }}</strong> — {{ s.created_at.strftime("%Y-%m-%d %H:%M") }}
-      <pre>{{ s.result }}</pre>
-    </li>
-  {% else %}
-    <li>No submissions yet.</li>
-  {% endfor %}
-</ul>
+    <p>
+        <strong>Difficulty:</strong>
+        <span class="badge
+            {% if exercise.difficulty == 'Easy' %} bg-success
+            {% elif exercise.difficulty == 'Medium' %} bg-warning text-dark
+            {% else %} bg-danger
+            {% endif %}
+        ">
+            {{ exercise.difficulty }}
+        </span>
+    </p>
+</div>
+
+<!-- Coding Form -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+        <h4 class="fw-semibold mb-3">Write Your Code</h4>
+
+        <form method="POST">
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+                {{ form.code(class="form-control code-editor", rows="12") }}
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+                {{ form.submit.label.text if form.submit.label else "Submit" }}
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Submission History -->
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <h4 class="fw-semibold mb-3">Your Recent Submissions</h4>
+
+        {% if submissions %}
+            <ul class="list-group">
+
+                {% for s in submissions %}
+                <li class="list-group-item">
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold
+                            {% if s.passed %} text-success {% else %} text-danger {% endif %}
+                        ">
+                            {{ "✔ Passed" if s.passed else "✘ Failed" }}
+                        </span>
+
+                        <small class="text-muted">
+                            {{ s.created_at.strftime("%Y-%m-%d %H:%M") }}
+                        </small>
+                    </div>
+
+                    {% if s.result %}
+                    <pre class="result-box mt-2">{{ s.result }}</pre>
+                    {% endif %}
+                </li>
+                {% endfor %}
+
+            </ul>
+        {% else %}
+            <p class="text-muted">No submissions yet.</p>
+        {% endif %}
+
+    </div>
+</div>
+
+
+<style>
+    /* Code Editor Styling */
+    .code-editor {
+        font-family: "Courier New", monospace;
+        font-size: 0.95rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 12px;
+    }
+
+    .code-editor:focus {
+        background: #fff;
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.25);
+    }
+
+    /* Submission Result Box */
+    .result-box {
+        background: #f4f4f4;
+        padding: 10px;
+        border-radius: 6px;
+        white-space: pre-wrap;
+        font-size: 0.9rem;
+    }
+
+    /* Smooth Card Hover */
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-radius: 12px;
+    }
+
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    }
+</style>
 
 {% endblock %}

@@ -6,6 +6,7 @@ from models import User, Exercise, Submission, Session, init_db
 from forms import RegisterForm, LoginForm, CodeSubmissionForm
 from evaluator import run_restricted_code
 from config import Config
+from sqlalchemy.orm import joinedload  # ADD THIS IMPORT
 
 # Initialize DB (create tables if not exist)
 init_db()
@@ -18,7 +19,6 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# Simple User wrapper for Flask-Login that interacts with SQLAlchemy session
 class LoginUser(UserMixin):
     def __init__(self, user_obj):
         self.id = str(user_obj.id)
@@ -93,7 +93,12 @@ def logout():
 def dashboard():
     db = Session()
     exercises = db.query(Exercise).order_by(Exercise.id).all()
-    submissions = db.query(Submission).filter_by(user_id=int(current_user.id)).order_by(Submission.created_at.desc()).limit(10).all()
+    # Eager load exercise relationship
+    submissions = db.query(Submission)\
+        .options(joinedload(Submission.exercise))\
+        .filter_by(user_id=int(current_user.id))\
+        .order_by(Submission.created_at.desc())\
+        .limit(10).all()
     db.close()
     return render_template('dashboard.html', exercises=exercises, submissions=submissions)
 
@@ -106,28 +111,25 @@ def exercise_view(ex_id):
         db.close()
         flash('Exercise not found', 'danger')
         return redirect(url_for('dashboard'))
+    
     form = CodeSubmissionForm()
     if request.method == 'GET':
-        # Prepopulate with starter code
         form.code.data = exercise.starter_code or ''
+    
     if form.validate_on_submit():
         code = form.code.data
-        # Evaluate code
         eval_result = run_restricted_code(code, stdin_text='')
         output = eval_result.get('output', '')
         error = eval_result.get('error', '')
         passed = False
-        # Simple pass/fail by comparing stripped output to expected_output (for demo)
+        
         expected = (exercise.expected_output or '').strip()
         if expected:
-            # compare lines ignoring trailing whitespace
             if output.strip() == expected:
                 passed = True
         else:
-            # if no expected provided, success if code executed with no errors
             passed = eval_result['success']
 
-        # Save submission
         sub = Submission(user_id=int(current_user.id), exercise_id=exercise.id,
                          code=code, result=(error or output)[:4000], passed=passed)
         db.add(sub)
@@ -135,17 +137,26 @@ def exercise_view(ex_id):
         flash('Code submitted. Passed: {}'.format(passed), 'info')
         db.close()
         return redirect(url_for('exercise_view', ex_id=ex_id))
-    # get last submissions by user for this exercise
-    subs = db.query(Submission).filter_by(user_id=int(current_user.id), exercise_id=exercise.id).order_by(Submission.created_at.desc()).limit(5).all()
+    
+    # Eager load exercise relationship
+    subs = db.query(Submission)\
+        .options(joinedload(Submission.exercise))\
+        .filter_by(user_id=int(current_user.id), exercise_id=exercise.id)\
+        .order_by(Submission.created_at.desc()).limit(5).all()
+    
     db.close()
-    return render_template('templates/excercise.html', exercise=exercise, form=form, submissions=subs)
+    return render_template('exercise.html', exercise=exercise, form=form, submissions=subs)  # Fixed typo
 
 @app.route('/profile')
 @login_required
 def profile():
     db = Session()
     user = db.query(User).filter_by(id=int(current_user.id)).first()
-    subs = db.query(Submission).filter_by(user_id=int(current_user.id)).order_by(Submission.created_at.desc()).all()
+    # Eager load both relationships
+    subs = db.query(Submission)\
+        .options(joinedload(Submission.exercise), joinedload(Submission.user))\
+        .filter_by(user_id=int(current_user.id))\
+        .order_by(Submission.created_at.desc()).all()
     db.close()
     return render_template('profile.html', user=user, submissions=subs)
 

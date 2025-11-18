@@ -1,0 +1,27 @@
+<!-- {% extends "base.html" %}
+{% block content %}
+<h2>{{ exercise.title }}</h2>
+<p>{{ exercise.description }}</p>
+<p><strong>Difficulty:</strong> {{ exercise.difficulty }}</p>
+
+<form method="POST">
+  {{ form.hidden_tag() }}
+  <p>
+    {{ form.code(cols=80, rows=12) }}
+  </p>
+  <p>{{ form.submit() }}</p>
+</form>
+
+<h3>Your recent submissions for this exercise</h3>
+<ul>
+  {% for s in submissions %}
+    <li>
+      <strong>{{ 'Passed' if s.passed else 'Failed' }}</strong> — {{ s.created_at.strftime("%Y-%m-%d %H:%M") }}
+      <pre>{{ s.result }}</pre>
+    </li>
+  {% else %}
+    <li>No submissions yet.</li>
+  {% endfor %}
+</ul>
+
+{% endblock %} -->
